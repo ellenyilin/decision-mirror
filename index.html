@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You've already made the decision.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #F6F1E9;
+  --ink: #1A1814;
+  --ink-soft: #3D3A34;
+  --ink-muted: #8C8880;
+  --gold: #BF8F3A;
+  --gold-light: #E2C87A;
+  --gold-pale: #F0E4BC;
+  --left: #4A7FA5;
+  --left-pale: #D0DDE8;
+  --right: #A5514A;
+  --right-pale: #E8D4D0;
+  --bg: #FDFAF5;
+  --surface: #FFFFFF;
+  --border: #E6DFD3;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── API KEY GATE ─── */
+#key-gate {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 100;
+}
+
+.key-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.4rem 2rem;
+  text-align: center;
+}
+
+.key-card .logo {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
+
+.key-card .subtitle {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.key-card label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  text-align: left;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+.key-input {
+  width: 100%;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--ink);
+  outline: none;
+  letter-spacing: 0.03em;
+  transition: border-color 0.2s;
+}
+.key-input:focus { border-color: var(--gold); }
+
+.key-hint {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  text-align: left;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+.key-hint a { color: var(--gold); text-decoration: none; }
+.key-hint a:hover { text-decoration: underline; }
+
+.key-btn {
+  width: 100%;
+  margin-top: 1.4rem;
+  padding: 0.8rem;
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.key-btn:hover { background: #2A2720; }
+.key-btn:active { transform: scale(0.99); }
+
+.key-error {
+  font-size: 0.78rem;
+  color: var(--right);
+  margin-top: 0.6rem;
+  display: none;
+}
+
+/* ─── MAIN LAYOUT ─── */
+#app {
+  width: 100%;
+  max-width: 680px;
+  padding: 0 1.2rem 4rem;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── HEADER ─── */
+.header {
+  text-align: center;
+  padding: 3rem 0 1.5rem;
+  width: 100%;
+}
+
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.header p {
+  margin-top: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.change-key-btn {
+  margin-top: 0.8rem;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: 'DM Sans', sans-serif;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.change-key-btn:hover { opacity: 1; }
+
+/* ─── SIDE LABELS ─── */
+.side-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 520px;
+  padding: 0 20px;
+  margin-bottom: 0.3rem;
+}
+
+.side-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  flex: 1;
+  transition: color 0.3s;
+}
+
+/* ─── BALANCE ─── */
+.balance-area {
+  width: 100%;
+  max-width: 520px;
+  height: 260px;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.post {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: linear-gradient(to bottom, var(--gold) 0%, #8C6820 100%);
+  height: 145px;
+  border-radius: 2px;
+  z-index: 2;
+}
+
+.base {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 9px;
+  background: var(--ink-soft);
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.beam-pivot {
+  position: absolute;
+  top: 106px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  background: var(--gold);
+  border-radius: 50%;
+  z-index: 3;
+}
+
+.beam-arm {
+  position: absolute;
+  top: 111px;
+  left: 50%;
+  width: 340px;
+  height: 5px;
+  transform: translateX(-50%) rotate(0deg);
+  transform-origin: center center;
+  transition: transform 1s cubic-bezier(0.34, 1.15, 0.64, 1);
+  z-index: 2;
+}
+
+.beam-bar {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, #9A8458, var(--gold), #9A8458);
+  border-radius: 3px;
+}
+
+/* strings */
+.string {
+  position: absolute;
+  top: 5px;
+  width: 1.5px;
+  height: 60px;
+  background: var(--gold);
+  opacity: 0.65;
+}
+.string.L { left: 14px; }
+.string.R { right: 14px; }
+
+/* pans */
+.pan {
+  position: absolute;
+  top: 65px;
+  width: 110px;
+  height: 9px;
+  background: linear-gradient(to bottom, #D4B870, #9A7830);
+  border-radius: 60%;
+}
+.pan.L { left: -41px; }
+.pan.R { right: -41px; }
+
+.pan-words {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  padding: 4px 0 0;
+}
+
+.word-chip {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+  animation: chipDrop 0.45s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+  letter-spacing: 0.02em;
+}
+.word-chip.L { background: var(--left-pale); color: var(--left); border: 1px solid var(--left); }
+.word-chip.R { background: var(--right-pale); color: var(--right); border: 1px solid var(--right); }
+
+@keyframes chipDrop {
+  from { opacity: 0; transform: translateY(-10px) scale(0.75); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+/* ─── INPUT CARD ─── */
+.input-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.5rem 1.6rem 1.4rem;
+  margin-bottom: 1rem;
+  transition: opacity 0.3s;
+}
+
+.input-card.dimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.input-hint {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.dual-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.field-wrap { display: flex; flex-direction: column; gap: 5px; }
+
+.field-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.field-label.L { color: var(--left); }
+.field-label.R { color: var(--right); }
+
+input[type="text"], textarea {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 0.55rem 0.85rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+input[type="text"]:focus, textarea:focus { border-color: var(--gold); }
+input[type="text"]::placeholder, textarea::placeholder { color: var(--ink-muted); font-size: 0.82rem; }
+
+.desc-area {
+  resize: none;
+  min-height: 96px;
+  line-height: 1.65;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 0.8rem;
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.2s, transform 0.1s;
+}
+.submit-btn:hover { background: #2A2720; }
+.submit-btn:active { transform: scale(0.99); }
+.submit-btn:disabled { background: var(--ink-muted); cursor: not-allowed; }
+
+/* ─── REVEAL CARD ─── */
+.reveal-card {
+  width: 100%;
+  background: var(--ink);
+  color: var(--cream);
+  border-radius: 18px;
+  padding: 1.8rem 1.8rem 1.6rem;
+  margin-bottom: 1rem;
+  display: none;
+  animation: slideUp 0.5s cubic-bezier(0.34, 1.1, 0.64, 1) both;
+}
+.reveal-card.show { display: block; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.verdict {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 3vw, 1.3rem);
+  color: var(--gold-light);
+  line-height: 1.45;
+  margin-bottom: 1.2rem;
+}
+
+/* ratio bar */
+.bar-wrap { margin-bottom: 1.2rem; }
+
+.bar-track {
+  height: 5px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 7px;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--left);
+  transition: width 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 50%;
+}
+
+.bar-nums {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+/* evidence */
+.ev-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6A6560;
+  margin-bottom: 0.5rem;
+}
+
+.ev-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1.2rem;
+}
+
+.ev-chip {
+  font-size: 0.8rem;
+  padding: 4px 11px;
+  border-radius: 20px;
+  background: rgba(191, 143, 58, 0.15);
+  color: var(--gold-light);
+  border: 1px solid rgba(191, 143, 58, 0.3);
+}
+
+.explanation {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: #C0B8A8;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 1.2rem;
+}
+
+/* ─── ACTION BUTTONS ─── */
+.action-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-outline {
+  flex: 1;
+  padding: 0.65rem 0.5rem;
+  background: transparent;
+  color: var(--gold-light);
+  border: 1px solid rgba(191, 143, 58, 0.35);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.83rem;
+  font-weight: 400;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: all 0.2s;
+  text-align: center;
+}
+.btn-outline:hover {
+  background: rgba(191, 143, 58, 0.1);
+  border-color: rgba(191, 143, 58, 0.6);
+}
+
+.btn-ghost-light {
+  flex: 1;
+  padding: 0.65rem 0.5rem;
+  background: transparent;
+  color: #6A6560;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.83rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.btn-ghost-light:hover { color: #A0988A; border-color: rgba(255,255,255,0.15); }
+
+/* ─── CHAT ─── */
+.chat-wrap {
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 1rem;
+}
+.chat-wrap.show { display: flex; }
+
+.chat-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.msg {
+  max-width: 82%;
+  padding: 0.75rem 1rem;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  animation: msgIn 0.3s ease both;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.msg.ai {
+  align-self: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 16px 4px;
+  color: var(--ink);
+}
+
+.msg.user {
+  align-self: flex-end;
+  background: var(--ink);
+  border-radius: 16px 16px 4px 16px;
+  color: var(--cream);
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.chat-textarea {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  color: var(--ink);
+  outline: none;
+  resize: none;
+  min-height: 44px;
+  max-height: 120px;
+  transition: border-color 0.2s;
+  overflow-y: auto;
+}
+.chat-textarea:focus { border-color: var(--gold); }
+
+.chat-send {
+  height: 44px;
+  padding: 0 1.2rem;
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.chat-send:hover { background: #2A2720; }
+.chat-send:disabled { background: var(--ink-muted); cursor: not-allowed; }
+
+.reset-row {
+  text-align: center;
+  margin-top: 1rem;
+}
+.reset-link {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: 'DM Sans', sans-serif;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+.reset-link:hover { opacity: 1; }
+
+/* dots loader */
+.dots {
+  display: inline-flex;
+  gap: 4px;
+  padding: 2px 0;
+}
+.dots span {
+  width: 5px; height: 5px;
+  background: var(--ink-muted);
+  border-radius: 50%;
+  animation: dot 1.1s infinite;
+}
+.dots span:nth-child(2) { animation-delay: 0.2s; }
+.dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot {
+  0%,60%,100% { opacity: 0.2; transform: scale(0.8); }
+  30%          { opacity: 1;   transform: scale(1); }
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 480px) {
+  .key-card { padding: 2rem 1.4rem; }
+  .input-card { padding: 1.2rem 1.2rem 1.1rem; }
+  .reveal-card { padding: 1.4rem 1.4rem 1.2rem; }
+  .beam-arm { width: 280px; }
+  .pan { width: 90px; }
+  .pan.L { left: -31px; }
+  .pan.R { right: -31px; }
+  .pan-words { width: 100px; }
+  .dual-row { grid-template-columns: 1fr; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ API KEY GATE ═══ -->
+<div id="key-gate">
+  <div class="key-card">
+    <div class="logo">You've already made the decision.</div>
+    <div class="subtitle">A mirror for your words</div>
+    <label>输入你的 Anthropic API Key 开始使用</label>
+    <input class="key-input" id="api-key-input" type="password"
+      placeholder="sk-ant-api03-…" autocomplete="off" spellcheck="false"
+      onkeydown="if(event.key==='Enter')saveKey()">
+    <div class="key-hint">
+      Key 仅保存在你自己的浏览器中，不经过任何服务器。<br>
+      还没有 Key？<a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">在 Anthropic Console 获取 →</a>
+    </div>
+    <button class="key-btn" onclick="saveKey()">进入</button>
+    <div class="key-error" id="key-error">Key 格式不对，应以 sk-ant- 开头</div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+
+  <div class="header">
+    <h1>You've already made the decision.</h1>
+    <p>你的用词，从没说谎</p>
+    <button class="change-key-btn" onclick="changeKey()">更换 API Key</button>
+  </div>
+
+  <!-- balance -->
+  <div class="side-labels">
+    <div class="side-label" id="lbl-a" style="color: var(--left);">选项 A</div>
+    <div class="side-label" id="lbl-b" style="color: var(--right);">选项 B</div>
+  </div>
+
+  <div class="balance-area">
+    <div class="beam-arm" id="beam">
+      <div class="beam-bar"></div>
+      <div class="string L"></div>
+      <div class="string R"></div>
+      <div class="pan L">
+        <div class="pan-words" id="words-L"></div>
+      </div>
+      <div class="pan R">
+        <div class="pan-words" id="words-R"></div>
+      </div>
+    </div>
+    <div class="beam-pivot"></div>
+    <div class="post"></div>
+    <div class="base"></div>
+  </div>
+
+  <!-- input -->
+  <div class="input-card" id="input-card">
+    <div class="input-hint">说出你纠结的两个选项，然后用自己的话描述这个处境</div>
+    <div class="dual-row">
+      <div class="field-wrap">
+        <span class="field-label L">选项 A</span>
+        <input type="text" id="opt-a" placeholder="例如：留在现在的工作" maxlength="30">
+      </div>
+      <div class="field-wrap">
+        <span class="field-label R">选项 B</span>
+        <input type="text" id="opt-b" placeholder="例如：出去创业" maxlength="30">
+      </div>
+    </div>
+    <textarea class="desc-area" id="desc" placeholder="用自己的话说说……你是怎么想的，有什么顾虑，又有什么期待"></textarea>
+    <button class="submit-btn" id="submit-btn" onclick="analyze()">让天平说话</button>
+  </div>
+
+  <!-- reveal -->
+  <div class="reveal-card" id="reveal-card">
+    <div class="verdict" id="verdict"></div>
+
+    <div class="bar-wrap">
+      <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+      <div class="bar-nums">
+        <span id="pct-a" style="color: var(--left);"></span>
+        <span id="pct-b" style="color: var(--right);"></span>
+      </div>
+    </div>
+
+    <div class="ev-label">你谈到「<span id="winner-name"></span>」时用的词</div>
+    <div class="ev-chips" id="ev-chips"></div>
+    <div class="explanation" id="explanation"></div>
+
+    <div class="action-row">
+      <button class="btn-outline" onclick="openChat()">我想再聊聊 →</button>
+      <button class="btn-ghost-light" onclick="resetAll()">重新开始</button>
+    </div>
+  </div>
+
+  <!-- chat -->
+  <div class="chat-wrap" id="chat-wrap">
+    <div class="chat-title">继续探索</div>
+    <div class="messages" id="messages"></div>
+    <div class="chat-input-row">
+      <textarea class="chat-textarea" id="chat-input"
+        placeholder="说出你真正的顾虑……"
+        rows="1"
+        onkeydown="onChatKey(event)"
+        oninput="autoGrow(this)"></textarea>
+      <button class="chat-send" id="chat-send" onclick="sendChat()">发送</button>
+    </div>
+    <div class="reset-row">
+      <button class="reset-link" onclick="resetAll()">重新开始</button>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<script>
+// ─── STATE ───
+const S = {
+  key: '',
+  optA: '', optB: '',
+  lW: 0, rW: 0,
+  result: null,
+  history: []
+};
+
+const API = 'https://api.anthropic.com/v1/messages';
+
+// ─── KEY MANAGEMENT ───
+function init() {
+  const saved = localStorage.getItem('aak');
+  if (saved) { S.key = saved; showApp(); }
+  else { document.getElementById('key-gate').style.display = 'flex'; }
+}
+
+function saveKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  const err = document.getElementById('key-error');
+  if (!val.startsWith('sk-ant-') && !val.startsWith('sk-')) {
+    err.style.display = 'block'; return;
+  }
+  err.style.display = 'none';
+  localStorage.setItem('aak', val);
+  S.key = val;
+  showApp();
+}
+
+function showApp() {
+  document.getElementById('key-gate').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+}
+
+function changeKey() {
+  localStorage.removeItem('aak');
+  S.key = '';
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('key-gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  resetAll();
+}
+
+// ─── BALANCE ───
+function setAngle(lW, rW) {
+  const diff = lW - rW;
+  const angle = Math.max(-20, Math.min(20, diff * 2.2));
+  document.getElementById('beam').style.transform =
+    `translateX(-50%) rotate(${angle}deg)`;
+}
+
+function dropChip(side, word, delay) {
+  setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = `word-chip ${side}`;
+    el.textContent = word;
+    document.getElementById(`words-${side}`).appendChild(el);
+    if (side === 'L') { S.lW++; } else { S.rW++; }
+    setAngle(S.lW, S.rW);
+  }, delay);
+}
+
+// ─── ANALYZE ───
+async function analyze() {
+  const optA = document.getElementById('opt-a').value.trim() || '选项A';
+  const optB = document.getElementById('opt-b').value.trim() || '选项B';
+  const desc = document.getElementById('desc').value.trim();
+
+  if (desc.length < 10) {
+    const ta = document.getElementById('desc');
+    ta.style.borderColor = 'var(--right)';
+    setTimeout(() => ta.style.borderColor = '', 1600);
+    return;
+  }
+
+  S.optA = optA; S.optB = optB;
+  document.getElementById('lbl-a').textContent = optA;
+  document.getElementById('lbl-b').textContent = optB;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = '分析中……';
+
+  const prompt = `你是一个语言与情感分析师。用户正在纠结两个选项：
+
+选项A（天平左侧）：${optA}
+选项B（天平右侧）：${optB}
+
+用户的描述：
+"${desc}"
+
+请分析这段话，找出情感倾向。只返回JSON，不要任何其他文字或代码块标记：
+
+{
+  "leftWords": ["词1","词2","词3","词4"],
+  "rightWords": ["词1","词2","词3","词4"],
+  "leftScore": 40,
+  "rightScore": 60,
+  "winner": "A",
+  "winnerName": "${optA}",
+  "verdict": "用「你」开头的一句话，点明用户真正倾向的选项，语气要诗意、有一点戳心的感觉，不超过35字",
+  "keyWords": ["最能体现倾向的原文词语或短语，3到5个"],
+  "explanation": "2到3句话，引用用户原文中的具体词语，解释语言如何暴露了真正的选择。不说教，只是呈现。"
+}
+
+规则：
+- leftWords 和 rightWords 各3到6个，从原文提取或合理概括
+- leftScore + rightScore 必须等于100
+- winner 只能是 "A" 或 "B"
+- winnerName 是倾向更强的那个选项的名称
+- 全部用中文`;
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': S.key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const e = await res.json();
+      throw new Error(e.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    let raw = data.content[0].text.trim();
+    raw = raw.replace(/```json|```/g, '').trim();
+    const r = JSON.parse(raw);
+    S.result = r;
+    S.history = [];
+
+    // drop chips
+    const lWords = r.leftWords || [];
+    const rWords = r.rightWords || [];
+    lWords.forEach((w, i) => dropChip('L', w, i * 220));
+    rWords.forEach((w, i) => dropChip('R', w, lWords.length * 220 + i * 220));
+
+    const totalDelay = (lWords.length + rWords.length) * 220 + 500;
+    setTimeout(() => showReveal(r, optA, optB), totalDelay);
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = '让天平说话';
+    alert('出了点问题：' + err.message + '\n\n请检查 API Key 是否正确，或网络是否可用。');
+  }
+}
+
+// ─── REVEAL ───
+function showReveal(r, optA, optB) {
+  document.getElementById('input-card').classList.add('dimmed');
+  const card = document.getElementById('reveal-card');
+  card.classList.add('show');
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  document.getElementById('verdict').textContent = r.verdict;
+  document.getElementById('winner-name').textContent = r.winnerName;
+  document.getElementById('explanation').textContent = r.explanation;
+
+  setTimeout(() => {
+    document.getElementById('bar-fill').style.width = r.leftScore + '%';
+  }, 150);
+
+  document.getElementById('pct-a').innerHTML =
+    `<span style="${r.leftScore >= r.rightScore ? 'font-weight:500' : ''}">${optA} ${r.leftScore}%</span>`;
+  document.getElementById('pct-b').innerHTML =
+    `<span style="${r.rightScore > r.leftScore ? 'font-weight:500' : ''}">${optB} ${r.rightScore}%</span>`;
+
+  const chips = document.getElementById('ev-chips');
+  chips.innerHTML = '';
+  (r.keyWords || []).forEach(w => {
+    const d = document.createElement('div');
+    d.className = 'ev-chip';
+    d.textContent = `"${w}"`;
+    chips.appendChild(d);
+  });
+}
+
+// ─── CHAT ───
+function openChat() {
+  const wrap = document.getElementById('chat-wrap');
+  wrap.classList.add('show');
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const r = S.result;
+  const kw = r.keyWords && r.keyWords[0] ? `「${r.keyWords[0]}」` : '';
+  const opener = `我注意到，你描述「${r.winnerName}」时，用的是你自己的语言——${kw}这个词出卖了你。\n\n那让你真正犹豫的，是什么？`;
+
+  addMsg('ai', opener);
+  S.history.push({ role: 'assistant', content: opener });
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const sendBtn = document.getElementById('chat-send');
+  sendBtn.disabled = true;
+  input.value = '';
+  input.style.height = '';
+
+  addMsg('user', text);
+  S.history.push({ role: 'user', content: text });
+
+  const loading = addMsg('ai', '');
+  loading.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+
+  const r = S.result;
+  const system = `你是一个温柔而清醒的对话伴侣，帮助用户看见自己内心真正的想法。
+
+背景：用户在纠结「${S.optA}」vs「${S.optB}」。
+分析显示用户的语言倾向是「${r.winnerName}」（${Math.max(r.leftScore, r.rightScore)}%）。
+用户的原始描述："${document.getElementById('desc').value}"
+
+你的原则：
+- 简短有力，每次不超过80字
+- 不给建议，不做判断，只是帮用户看见自己
+- 偶尔引用用户自己说的原话，问他们那个词背后藏着什么
+- 如果用户在绕圈子，温柔地指出来
+- 如果用户问你的意见，把问题还给他
+- 用中文`;
+
+  try {
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': S.key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        system,
+        messages: S.history.slice(-12)
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.content[0].text;
+    loading.innerHTML = '';
+    loading.textContent = reply;
+    S.history.push({ role: 'assistant', content: reply });
+
+  } catch (e) {
+    loading.textContent = '网络出了问题，稍后再试？';
+  }
+
+  sendBtn.disabled = false;
+  document.getElementById('messages').scrollTop = 9999;
+}
+
+function addMsg(role, text) {
+  const wrap = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  d.textContent = text;
+  wrap.appendChild(d);
+  wrap.scrollTop = 9999;
+  return d;
+}
+
+function onChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ─── RESET ───
+function resetAll() {
+  S.optA = ''; S.optB = '';
+  S.lW = 0; S.rW = 0;
+  S.result = null; S.history = [];
+
+  document.getElementById('words-L').innerHTML = '';
+  document.getElementById('words-R').innerHTML = '';
+  document.getElementById('beam').style.transform = 'translateX(-50%) rotate(0deg)';
+  document.getElementById('reveal-card').classList.remove('show');
+  document.getElementById('chat-wrap').classList.remove('show');
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('input-card').classList.remove('dimmed');
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('submit-btn').textContent = '让天平说话';
+  document.getElementById('desc').value = '';
+  document.getElementById('opt-a').value = '';
+  document.getElementById('opt-b').value = '';
+  document.getElementById('lbl-a').textContent = '选项 A';
+  document.getElementById('lbl-b').textContent = '选项 B';
+  document.getElementById('bar-fill').style.width = '50%';
+  document.getElementById('chat-input').value = '';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+init();
+</script>
+</body>
+</html>
